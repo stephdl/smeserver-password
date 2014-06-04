@@ -1,0 +1,132 @@
+#!/usr/bin/perl -w
+# modified on 23/05/2008
+# direct access to /etc/shadow file
+# thanks to Jeremy D. Zawodny, <jzawodn@wcnet.org>
+# for his Acctinfo.pm (getpwnams and ChopDec functions)
+# http://jeremy.zawodny.com/perl/AcctInfo/index.html
+
+package esmith;
+use strict;
+use Errno;
+use esmith::AccountsDB;
+use Date::Format;
+use Date::Parse;
+use Text::Template;
+
+my $adb = esmith::AccountsDB->open_ro() or die "Couldnt' open AccountsDB\n";
+my $db = esmith::ConfigDB->open() or die "Couldnt' open ConfigDB\n";
+my @accounts = $adb->get('admin');
+
+push @accounts, $adb->users;
+
+# get information about password ageing
+my $pwdaging = $db->get('passwordaging');
+my $pwdage = $pwdaging->prop('PwdAge');
+my $pwdwarn = $pwdaging->prop('PwdWarn');
+my $isactive = $pwdaging->prop('Active') || 'no';
+my $lockaccount = $pwdaging->prop('LockAccount') || 'no';
+
+# date/time parameters
+my @lt = localtime(time);
+my $template = '%s';
+my $today = time() / 86400; # Today's date.
+$today = &ChopDec($today); # no decimals 
+
+# system parameters
+my $domain = $db->get_value("DomainName") || 'localhost';
+my $interface = $db->get('InternalInterface');
+my $ipaddress = $interface->prop('IPAddress');
+
+# who is sending mail? :-)
+my $sender = "admin\@$domain";
+
+# mail body template for user
+my $templates = '/etc/e-smith/templates';
+my $source = '/usr/lib/e-smith-passexpire/passExpire.tmpl';
+
+-f "${templates}-custom${source}" and $templates .= "-custom";
+
+if ($isactive eq 'yes') {
+        foreach my $account (@accounts)
+                {
+                next unless (($account->prop('PasswordSet') || 'no') eq 'yes');
+                my $name = $account->key;
+                if (!($name eq 'admin'))  
+                {
+                        next unless (($account->prop('PasswordAge') || 'no') eq 'yes');
+                        my @pw = split(/:/ , &getpwnams($name));
+                        my $lastchange = $pw[2]; # Date of last change.
+                        # Calculate days until expiration.
+                        my $age = $today - $lastchange;
+                        my $realaging = $pwdage - $pwdwarn;
+                        my $days =  $pwdage - $age;
+                        my $time2warn = $age - $realaging;
+                        if ($time2warn >= 0) {
+
+                                if ($days < 0) {
+                                        $days = -1 * $days;
+                                }
+                                my $t = new Text::Template(TYPE => 'FILE', SOURCE => "${templates}${source}");
+
+                                open(QMAIL, "|/var/qmail/bin/qmail-inject -f$sender $name") || die "Could not send mail via qmail-inject!\n";
+
+                                print QMAIL $t->fill_in( HASH => {
+                                        conf    => \$db,
+                                        user    => $name,
+                                        ip              => $ipaddress,
+                                        number  => $days, 
+                                });
+
+                                close QMAIL;
+                                # if time2warn >= pwdwarn then send email to admin too
+                                if ($time2warn >= $pwdwarn) {
+
+                                        #message to admin is hardcoded in english; not so bad..
+
+                                        my $t1 = "To: admin\n";
+                                        $t1 .= "From: \"Administrator\" <admin\@$domain>\n";
+                                        $t1 .= "Subject: Password for user $name expired\n\n";
+                                        $t1 .= "This is an automatically generated mail message\n\n";
+                                        $t1 .= "Dear Admin,\n password for user $name has expired since $days days\n";
+                                        $t1 .= "Regards";
+
+                                        open(QMAIL, "|/var/qmail/bin/qmail-inject -f$sender admin") || die "Could not send mail via qmail-inject!\n";
+
+                                        print QMAIL $t1;
+                                        close QMAIL;
+
+                                        # if $lockaccount eq yes, call signal-event to lock the account
+                                        if ($lockaccount eq 'yes'){
+                                        system "/sbin/e-smith/signal-event user-lock $name";
+                                        }
+                                }
+                        }
+                }
+        }
+}
+
+exit 0;
+
+sub getpwnams {
+  my $name = $_[0];
+  my $line;
+  $name .= ":";
+  open(SHADOW, "/etc/shadow");
+  while(<SHADOW>) {
+    last if (/^$name/);
+  } # end while
+  close(SHADOW);
+  $line = $_;
+  chop($line);
+  return($line);
+}
+
+sub ChopDec {
+  my $num = $_[0];
+  if ($num =~ /\./) {
+    $num =~ /(.*)\.(.*)/;
+    $num = $1;
+  } # end if
+  return $num;
+}
+

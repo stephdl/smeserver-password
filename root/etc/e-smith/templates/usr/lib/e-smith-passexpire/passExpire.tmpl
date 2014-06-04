@@ -1,0 +1,24 @@
+{
+    use esmith::I18N;
+    use Locale::gettext;
+
+    my $i18n = new esmith::I18N;
+    $i18n->setLocale('passExpire.tmpl');
+
+    my $domain = $conf->get_value("DomainName") || "localhost";
+    my $systemName = $conf->get_value("SystemName") || "SME Server";
+
+    $OUT .= "To: $user\n";
+    $OUT .= "From: \"Administrator\" <admin\@${domain}>\n";
+    $OUT .= "Subject: " . gettext("User Password expiration") .  "\n\n";
+
+    $OUT .= gettext("This is an automatically generated mail message from admin"). " ${systemName}.${domain}.\n\n";
+
+    $OUT .= gettext("Dear $user,\n your password is expiring in $number days, so you have to change it\n\n");
+
+    $OUT .= gettext("To do so, open your browser to:\n https://$systemName/user-password \n or \n ");
+    
+    $OUT .= gettext("https://$ip/user-password \n page. \n You'll be asked your account name, your old password and your new password (twice)\n");
+    
+    $OUT .= gettext("For any futher information you can drop a mail to admin\@${domain}.\n Greetings\n ");
+}

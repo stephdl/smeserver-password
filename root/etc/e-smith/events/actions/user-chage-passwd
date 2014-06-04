@@ -1,0 +1,84 @@
+#! /usr/bin/perl
+
+#----------------------------------------------------------------------
+# copyright (C) 2001 e-smith, inc.
+#               
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#               
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#               
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+# 
+# Technical support for this program is available from e-smith, inc.
+# Please visit our web site www.e-smith.com for details.
+#----------------------------------------------------------------------
+
+use strict;
+use Errno;
+use esmith::AccountsDB;
+use esmith::ConfigDB;
+
+my $adb = esmith::AccountsDB->open_ro() || die "Couldnt' open AccountsDB\n";
+my $db = esmith::ConfigDB->open()  || die "Couldnt' open ConfigDB\n";
+
+my $pwdaging = $db->get('passwordaging');
+my $pwdage = $pwdaging->prop('PwdAge');
+my $pwdwarn = $pwdaging->prop('PwdWarn');
+my $isactive = $pwdaging->prop('Active') || 'no';
+my $lockaccount = $pwdaging->prop('LockAccount') || 'no';
+my $resetdate = $pwdaging->prop('DateReset') || 'no';
+
+
+
+my @accounts = $adb->get('admin');
+push @accounts, $adb->users;
+
+    foreach my $account (@accounts)
+    {
+
+        next unless (($account->prop('PasswordSet') || 'no') eq 'yes');
+
+        my $name = $account->key;
+
+        if (!($name eq 'admin'))
+        {
+       		if ((($account->prop('PasswordAge') || 'no') eq 'yes') && $isactive eq 'yes')
+        	{
+		# check if DateReset is set
+			if ($resetdate eq 'yes')
+			{
+			#ok set chage -d parameter to today
+			system "chage -M $pwdage -W $pwdwarn -d `date +%F`  $name";
+			}
+			else
+			{
+			system "chage -M $pwdage -W $pwdwarn $name";
+			}
+		}
+		else
+		{
+		system "chage -M 99999 -W7 $name";
+		}
+        }
+    }
+
+# now set DateReset to 'no'
+
+my $key = $db->get('passwordaging' );
+if ( !$key) {
+	$db->set_value('passwordaging','configuration');
+	$key = $db->get('passwordaging' );
+}
+
+$key->set_prop('DateReset', 'no');
+
+exit 0;
+

@@ -1,0 +1,3 @@
+#! /bin/sh
+
+/etc/e-smith/events/actions/user-passwd-expiration
