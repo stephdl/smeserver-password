@@ -191,7 +191,7 @@ for my $user ($adb->users)
         my $passage = $user->prop('PasswordAge') || 'no';
         #       $user->set_prop('PasswordAge', 'no');
 	my $acctName=$user->key;
-        if ( $opt1{$acctName} eq  "on" )
+        if ( defined $opt1{$acctName} eq  "on" )
         	{
                 $user->set_prop('PasswordAge', 'yes');
                 }
