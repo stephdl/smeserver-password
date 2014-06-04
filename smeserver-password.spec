@@ -3,8 +3,8 @@
 # Name: Stephen Noble
 
 %define name smeserver-password
-%define version 1.0.0
-%define release 32
+%define version 1.2.0
+%define release 1
 
 Summary: SME Server password panel
 Name: %{name}
@@ -13,30 +13,30 @@ Release: %{release}%{?dist}
 License: GNU GPL version 2
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
-Patch0: smeserver-password-1.0.0-locale-2008-03-11.patch
-Patch1: smeserver-password-1.0.0-locale-2008-04-01.patch
-Patch2: smeserver-password-1.0.0-initdb.patch
-Patch3: smeserver-password-1.0.0-locale-2008-04-22.patch
-Patch4: smeserver-password-1.0.0-add2general.patch
-Patch5: smeserver-password-1.0.0-locale-2008-05-07.patch
-Patch6: smeserver-password-1.0.0-locale-2008-05-21.patch
-Patch7: smeserver-password-1.0.0-Acctinfo.patch
-Patch8: smeserver-password-1.0.0-locale-2008-05-30.patch
-Patch9: smeserver-password-1.0.0-locale-2008-07-01.patch
-Patch10: smeserver-password-1.0.0-locale-2008-09-27.patch
-Patch11: smeserver-password-1.0.0-locale-2008-10-14.patch
-Patch12: smeserver-password-1.0.0-locale-2008-11-05.patch
-Patch13: smeserver-password-1.0.0-locale-2009-01-01.patch
-Patch14: smeserver-password-1.0.0-locale-2009-03-01.patch
-Patch15: smeserver-password-1.0.0-locale-2009-04-27.patch
-Patch16: smeserver-password-1.0.0-locale-2009-05-20.patch
-Patch17: smeserver-password-1.0.0-locale-2009-08-24.patch
-Patch18: smeserver-password-1.0.0-locale-2009-10-21.patch
-Patch19: smeserver-password-1.0.0-locale-2010-03-02.patch
-Patch20: smeserver-password-1.0.0-locale-2011-03-06.patch
-Patch21: smeserver-password-1.0.0-sme8update.patch
-Patch22: smeserver-password-1.0.0-epoch.patch
-Patch23: smeserver-password-1.0.0-locale-2013-07-14.patch
+#Patch0: smeserver-password-1.0.0-locale-2008-03-11.patch
+#Patch1: smeserver-password-1.0.0-locale-2008-04-01.patch
+#Patch2: smeserver-password-1.0.0-initdb.patch
+#Patch3: smeserver-password-1.0.0-locale-2008-04-22.patch
+#Patch4: smeserver-password-1.0.0-add2general.patch
+#Patch5: smeserver-password-1.0.0-locale-2008-05-07.patch
+#Patch6: smeserver-password-1.0.0-locale-2008-05-21.patch
+#Patch7: smeserver-password-1.0.0-Acctinfo.patch
+#Patch8: smeserver-password-1.0.0-locale-2008-05-30.patch
+#Patch9: smeserver-password-1.0.0-locale-2008-07-01.patch
+#Patch10: smeserver-password-1.0.0-locale-2008-09-27.patch
+#Patch11: smeserver-password-1.0.0-locale-2008-10-14.patch
+#Patch12: smeserver-password-1.0.0-locale-2008-11-05.patch
+#Patch13: smeserver-password-1.0.0-locale-2009-01-01.patch
+#Patch14: smeserver-password-1.0.0-locale-2009-03-01.patch
+#Patch15: smeserver-password-1.0.0-locale-2009-04-27.patch
+#Patch16: smeserver-password-1.0.0-locale-2009-05-20.patch
+#Patch17: smeserver-password-1.0.0-locale-2009-08-24.patch
+#Patch18: smeserver-password-1.0.0-locale-2009-10-21.patch
+#Patch19: smeserver-password-1.0.0-locale-2010-03-02.patch
+#Patch20: smeserver-password-1.0.0-locale-2011-03-06.patch
+#Patch21: smeserver-password-1.0.0-sme8update.patch
+#Patch22: smeserver-password-1.0.0-epoch.patch
+#Patch23: smeserver-password-1.0.0-locale-2013-07-14.patch
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 BuildRequires: e-smith-devtools
@@ -46,6 +46,9 @@ Requires: e-smith-formmagick >= 1.4.0-12
 Smeserver addon panel to change password strength and password ageing
 
 %changelog
+* Wed Jun 24 2014 stephane de Labrusse <stephdl@de-labrusse.fr> 1.2.0-1
+- Initial release to sme9
+
 * Sun Jul 14 2013 JP Pialasse <tests@pialasse.com> 1.0.0-32.sme
 - apply locale 2013-07-14 patch
 - also fix for some languages [SME: 4920]
@@ -154,30 +157,30 @@ Smeserver addon panel to change password strength and password ageing
 
 %prep
 %setup
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch19 -p1
-%patch20 -p1
-%patch21 -p1
-%patch22 -p1
-%patch23 -p1
+#%patch0 -p1
+#%patch1 -p1
+#%patch2 -p1
+#%patch3 -p1
+#%patch4 -p1
+#%patch5 -p1
+#%patch6 -p1
+#%patch7 -p1
+#%patch8 -p1
+#%patch9 -p1
+#%patch10 -p1
+#%patch11 -p1
+#%patch12 -p1
+#%patch13 -p1
+#%patch14 -p1
+#%patch15 -p1
+#%patch16 -p1
+#%patch17 -p1
+#%patch18 -p1
+#%patch19 -p1
+#%patch20 -p1
+#%patch21 -p1
+#%patch22 -p1
+#%patch23 -p1
 
 %build
 LEXICONS=$(find root/etc/e-smith/locale/ -type f )
